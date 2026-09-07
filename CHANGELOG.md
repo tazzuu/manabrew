@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.38.0](https://github.com/witchesofthehill/manabrew/compare/v3.37.2...v3.38.0) (2026-09-07)
+
+### Features
+
+* **ui:** add interactive Pixi rules previews ([#863](https://github.com/witchesofthehill/manabrew/issues/863)) ([9b85cf3](https://github.com/witchesofthehill/manabrew/commit/9b85cf3adacabafdddd4334f0ceb22bdc83e6f71))
+
 ## [3.37.2](https://github.com/witchesofthehill/manabrew/compare/v3.37.1...v3.37.2) (2026-09-06)
 
 ### Fixes
