@@ -22,3 +22,7 @@ A background `updater` monitor (`updater.rs`) polls the version manifest (defaul
 
 A headless node offers no plane; its rooms stay on the relay. Under `forge-room` a desktop host
 installs a `ShellBridge` that serves WebRTC seats through the webview. See `docs/TRANSPORT.md`.
+
+## Game outcome
+
+The relay no longer reads how a game ended off the state stream (`docs/agents/RELAY.md`, `ReportGameOutcome`); the node files it. `spawn_game_over_forwarder` builds the report from the final `State` in the game-over batch, or, when the backend sends none (the Rust engine), from the last state the node cached in `HostSnapshot`, and only if that one says the game is over. It goes out after the final envelopes and before `EndGame`, so the relay still holds the replay cache when it lands. An engine panic or error files `fatal_message` instead, ahead of the `Fatal` envelope.

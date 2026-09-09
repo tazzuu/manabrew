@@ -1518,7 +1518,6 @@ fn handle_client_message(
                         started.player_order
                     );
                     metrics::record_game_started(started.room_info.engine);
-                    state.deck_play_events.game_started(&started);
                     state
                         .analytics
                         .emit(analytics::game_started_event(&started));
@@ -1621,6 +1620,31 @@ fn handle_client_message(
                 engine_cross_max: stats.engine_think_cross_turn.as_ref().map(|t| t.max),
                 think_hidden: stats.think_samples_hidden,
             });
+        }
+
+        ClientMessage::ReportGameOutcome { game_id, outcome } => {
+            let room_id = state.players.get(player_id).and_then(|p| p.room_id.clone());
+            let recorded = room_id
+                .and_then(|room_id| state.rooms.get_mut(&room_id))
+                .filter(|room| room.is_host(player_id))
+                .and_then(|mut room| {
+                    room.replay
+                        .as_mut()
+                        .filter(|replay| replay.game_id == game_id)
+                        .map(|replay| replay.record_outcome(outcome))
+                })
+                .is_some();
+            metrics::record_game_outcome_report(if recorded {
+                metrics::OUTCOME_REPORT_ACCEPTED
+            } else {
+                metrics::OUTCOME_REPORT_REJECTED
+            });
+            if !recorded {
+                debug!(
+                    "[analytics] '{}' filed an outcome for a game it does not host",
+                    username
+                );
+            }
         }
 
         ClientMessage::RequestResync => {
@@ -2050,6 +2074,7 @@ fn client_msg_type(msg: &ClientMessage) -> &'static str {
         ClientMessage::SetMaxPlayers { .. } => "SetMaxPlayers",
         ClientMessage::StartGame { .. } => "StartGame",
         ClientMessage::EndGame { .. } => "EndGame",
+        ClientMessage::ReportGameOutcome { .. } => "ReportGameOutcome",
         ClientMessage::ReportEngineStats { .. } => "ReportEngineStats",
         ClientMessage::RequestResync => "RequestResync",
         ClientMessage::BroadcastState { .. } => "BroadcastState",
