@@ -85,6 +85,10 @@ pub struct ServerState {
     pub analytics: AnalyticsHandle,
     pub deck_play_events: DeckPlayEventHandle,
     pub identity: IdentityVerifier,
+    /// See `ServerConfig::direct_transport`. Fails closed.
+    pub direct_transport: bool,
+    /// See `ServerConfig::ice_servers`.
+    pub ice_servers: Vec<crate::protocol::IceServer>,
     pub lobby_chat: Mutex<ChatHistory>,
     pub seal: Option<MessageSealer>,
     pub art_base_url: Option<String>,
@@ -110,10 +114,22 @@ impl ServerState {
             analytics,
             deck_play_events,
             identity: IdentityVerifier::new(hub_jwks_url),
+            direct_transport: false,
+            ice_servers: Vec::new(),
             lobby_chat: Mutex::new(ChatHistory::default()),
             seal,
             art_base_url: None,
         }
+    }
+
+    pub fn with_direct_transport(
+        mut self,
+        enabled: bool,
+        ice_servers: Vec<crate::protocol::IceServer>,
+    ) -> Self {
+        self.direct_transport = enabled;
+        self.ice_servers = ice_servers;
+        self
     }
 
     /// Where this relay serves card art, handed to every client at auth. A
