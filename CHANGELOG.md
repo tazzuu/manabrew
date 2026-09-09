@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.40.1](https://github.com/witchesofthehill/manabrew/compare/v3.40.0...v3.40.1) (2026-09-09)
+
+### Fixes
+
+* **desktop:** local relay builds after the deck-play handle removal ([#897](https://github.com/witchesofthehill/manabrew/issues/897)) ([c56b49d](https://github.com/witchesofthehill/manabrew/commit/c56b49d0287807e02bb20b98a01b4f1f055c4ef1))
+
 ## [3.40.0](https://github.com/witchesofthehill/manabrew/compare/v3.39.0...v3.40.0) (2026-09-09)
 
 ### Features
