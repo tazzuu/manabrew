@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.38.2](https://github.com/witchesofthehill/manabrew/compare/v3.38.1...v3.38.2) (2026-09-09)
+
+### Fixes
+
+* **website:** sitemap and robots for the apex, real 404s on docs, noindex staging ([#890](https://github.com/witchesofthehill/manabrew/issues/890)) ([58a7851](https://github.com/witchesofthehill/manabrew/commit/58a785171be0ec87842ec5a53b098f53eb754ab6))
+
 ## [3.38.1](https://github.com/witchesofthehill/manabrew/compare/v3.38.0...v3.38.1) (2026-09-07)
 
 ### Fixes
