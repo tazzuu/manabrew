@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.40.0](https://github.com/witchesofthehill/manabrew/compare/v3.39.0...v3.40.0) (2026-09-09)
+
+### Features
+
+* **analytics:** the engine host reports how a game ended + the hub is the store for relay events ([#883](https://github.com/witchesofthehill/manabrew/issues/883)) ([d2b1271](https://github.com/witchesofthehill/manabrew/commit/d2b12717b4618443e3ca970398c038a2cda80f7f))
+
 ## [3.39.0](https://github.com/witchesofthehill/manabrew/compare/v3.38.2...v3.39.0) (2026-09-09)
 
 ### Features
