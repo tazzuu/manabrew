@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.41.0](https://github.com/witchesofthehill/manabrew/compare/v3.40.1...v3.41.0) (2026-09-10)
+
+### Features
+
+* backgrounds ([#903](https://github.com/witchesofthehill/manabrew/issues/903)) ([067eab1](https://github.com/witchesofthehill/manabrew/commit/067eab1deec20b1b50a899b8aaf2ed377ad28c49))
+
 ## [3.40.1](https://github.com/witchesofthehill/manabrew/compare/v3.40.0...v3.40.1) (2026-09-09)
 
 ### Fixes
