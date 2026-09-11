@@ -1,5 +1,139 @@
 # Changelog
 
+## [3.42.1](https://github.com/witchesofthehill/manabrew/compare/v3.42.0...v3.42.1) (2026-09-11)
+
+### Fixes
+
+* **play:** hold the back button during a live game ([#900](https://github.com/witchesofthehill/manabrew/issues/900)) ([feeb1cf](https://github.com/witchesofthehill/manabrew/commit/feeb1cfad985a5c2d32c90a30baa940abdf45bd3))
+
+## [3.42.0](https://github.com/witchesofthehill/manabrew/compare/v3.41.1...v3.42.0) (2026-09-11)
+
+### Features
+
+* **telemetry:** cut the client turnaround at the first reply frame ([#907](https://github.com/witchesofthehill/manabrew/issues/907)) ([e381e2f](https://github.com/witchesofthehill/manabrew/commit/e381e2f7518386e5695f28a268b6f1196cf26b35))
+
+## [3.41.1](https://github.com/witchesofthehill/manabrew/compare/v3.41.0...v3.41.1) (2026-09-11)
+
+### Fixes
+
+* **telemetry:** file solo engine reports under the offline game ([#905](https://github.com/witchesofthehill/manabrew/issues/905)) ([400031b](https://github.com/witchesofthehill/manabrew/commit/400031bccc40d88868a5430253b5db9b167695dd))
+
+## [3.41.0](https://github.com/witchesofthehill/manabrew/compare/v3.40.1...v3.41.0) (2026-09-10)
+
+### Features
+
+* backgrounds ([#903](https://github.com/witchesofthehill/manabrew/issues/903)) ([067eab1](https://github.com/witchesofthehill/manabrew/commit/067eab1deec20b1b50a899b8aaf2ed377ad28c49))
+
+## [3.40.1](https://github.com/witchesofthehill/manabrew/compare/v3.40.0...v3.40.1) (2026-09-09)
+
+### Fixes
+
+* **desktop:** local relay builds after the deck-play handle removal ([#897](https://github.com/witchesofthehill/manabrew/issues/897)) ([c56b49d](https://github.com/witchesofthehill/manabrew/commit/c56b49d0287807e02bb20b98a01b4f1f055c4ef1))
+
+## [3.40.0](https://github.com/witchesofthehill/manabrew/compare/v3.39.0...v3.40.0) (2026-09-09)
+
+### Features
+
+* **analytics:** the engine host reports how a game ended + the hub is the store for relay events ([#883](https://github.com/witchesofthehill/manabrew/issues/883)) ([d2b1271](https://github.com/witchesofthehill/manabrew/commit/d2b12717b4618443e3ca970398c038a2cda80f7f))
+
+## [3.39.0](https://github.com/witchesofthehill/manabrew/compare/v3.38.2...v3.39.0) (2026-09-09)
+
+### Features
+
+* **net:** peer-to-peer game traffic over WebRTC, opt-in per player ([#871](https://github.com/witchesofthehill/manabrew/issues/871)) ([6e8ff2b](https://github.com/witchesofthehill/manabrew/commit/6e8ff2ba0934283d6943bb56f921022ecb63187f))
+
+## [3.38.2](https://github.com/witchesofthehill/manabrew/compare/v3.38.1...v3.38.2) (2026-09-09)
+
+### Fixes
+
+* **website:** sitemap and robots for the apex, real 404s on docs, noindex staging ([#890](https://github.com/witchesofthehill/manabrew/issues/890)) ([58a7851](https://github.com/witchesofthehill/manabrew/commit/58a785171be0ec87842ec5a53b098f53eb754ab6))
+
+## [3.38.1](https://github.com/witchesofthehill/manabrew/compare/v3.38.0...v3.38.1) (2026-09-07)
+
+### Fixes
+
+* **ui:** correct battle preview faces ([#882](https://github.com/witchesofthehill/manabrew/issues/882)) ([4c044d7](https://github.com/witchesofthehill/manabrew/commit/4c044d716524e333b5283992c88da9b5a97b6471))
+
+## [3.38.0](https://github.com/witchesofthehill/manabrew/compare/v3.37.2...v3.38.0) (2026-09-07)
+
+### Features
+
+* **ui:** add interactive Pixi rules previews ([#863](https://github.com/witchesofthehill/manabrew/issues/863)) ([9b85cf3](https://github.com/witchesofthehill/manabrew/commit/9b85cf3adacabafdddd4334f0ceb22bdc83e6f71))
+
+## [3.37.2](https://github.com/witchesofthehill/manabrew/compare/v3.37.1...v3.37.2) (2026-09-06)
+
+### Fixes
+
+* **ui:** resolve avatars across player surfaces ([#859](https://github.com/witchesofthehill/manabrew/issues/859)) ([5246c02](https://github.com/witchesofthehill/manabrew/commit/5246c02342a2a76da5a04525d67526fed89c9b51))
+
+## [3.37.1](https://github.com/witchesofthehill/manabrew/compare/v3.37.0...v3.37.1) (2026-09-06)
+
+### Fixes
+
+* desktop build ([#876](https://github.com/witchesofthehill/manabrew/issues/876)) ([b6a9c7e](https://github.com/witchesofthehill/manabrew/commit/b6a9c7e6e21c1823cb9de901a0881a8e59c1ee06))
+
+## [3.37.0](https://github.com/witchesofthehill/manabrew/compare/v3.36.1...v3.37.0) (2026-09-06)
+
+### Features
+
+* chat and invites ([#868](https://github.com/witchesofthehill/manabrew/issues/868)) ([1539396](https://github.com/witchesofthehill/manabrew/commit/1539396649c58322973d6b59604b393460db4d0e))
+
+## [3.36.1](https://github.com/witchesofthehill/manabrew/compare/v3.36.0...v3.36.1) (2026-09-06)
+
+### Fixes
+
+* windows doesn't load cards ([#875](https://github.com/witchesofthehill/manabrew/issues/875)) ([ba6711a](https://github.com/witchesofthehill/manabrew/commit/ba6711a9fde005151a02dce1968ede65d5d84304))
+
+## [3.36.0](https://github.com/witchesofthehill/manabrew/compare/v3.35.0...v3.36.0) (2026-09-06)
+
+### Features
+
+* **relay:** a self-hosted relay that holds the card art, and the desktop that finds it ([#870](https://github.com/witchesofthehill/manabrew/issues/870)) ([ee81fc4](https://github.com/witchesofthehill/manabrew/commit/ee81fc4f7232af8c97b599266e647525c56e1940))
+
+## [3.35.0](https://github.com/witchesofthehill/manabrew/compare/v3.34.7...v3.35.0) (2026-09-05)
+
+### Features
+
+* **game:** show persistent card choices ([#774](https://github.com/witchesofthehill/manabrew/issues/774)) ([55fcd6d](https://github.com/witchesofthehill/manabrew/commit/55fcd6dac56d5c1e7a7e47a2efb300804f30fa91))
+
+## [3.34.7](https://github.com/witchesofthehill/manabrew/compare/v3.34.6...v3.34.7) (2026-09-04)
+
+### Fixes
+
+* **telemetry:** tell a node host from a peer host ([#865](https://github.com/witchesofthehill/manabrew/issues/865)) ([172a0cb](https://github.com/witchesofthehill/manabrew/commit/172a0cbff51f4ab9dd2a984e30833ded2bc15aa4))
+
+## [3.34.6](https://github.com/witchesofthehill/manabrew/compare/v3.34.5...v3.34.6) (2026-09-04)
+
+### Fixes
+
+* **desktop:** give the embedded node somewhere to log ([#861](https://github.com/witchesofthehill/manabrew/issues/861)) ([f242704](https://github.com/witchesofthehill/manabrew/commit/f2427042e4c9733caf828dfd735a3b5a95dac432))
+
+## [3.34.5](https://github.com/witchesofthehill/manabrew/compare/v3.34.4...v3.34.5) (2026-09-04)
+
+### Fixes
+
+* **web:** route unsupported forge wasm browsers to hosted nodes ([#860](https://github.com/witchesofthehill/manabrew/issues/860)) ([29c34d2](https://github.com/witchesofthehill/manabrew/commit/29c34d2341467cc6e46cbc68ca33e18c16ae6485))
+
+## [3.34.4](https://github.com/witchesofthehill/manabrew/compare/v3.34.3...v3.34.4) (2026-09-03)
+
+### Fixes
+
+* fix docs ([#857](https://github.com/witchesofthehill/manabrew/issues/857)) ([e693539](https://github.com/witchesofthehill/manabrew/commit/e6935390aa1d0b60f15ece9391939cb0f234d630))
+
+## [3.34.3](https://github.com/witchesofthehill/manabrew/compare/v3.34.2...v3.34.3) (2026-09-03)
+
+### Fixes
+
+* 813 ([#850](https://github.com/witchesofthehill/manabrew/issues/850)) ([0cb0257](https://github.com/witchesofthehill/manabrew/commit/0cb0257e828c8ede0fa40d4d738c591e808b538d))
+
+## [3.34.2](https://github.com/witchesofthehill/manabrew/compare/v3.34.1...v3.34.2) (2026-09-03)
+
+### Fixes
+
+* **telemetry:** label multiplayer forge hosts ([#855](https://github.com/witchesofthehill/manabrew/issues/855)) ([e3de430](https://github.com/witchesofthehill/manabrew/commit/e3de43036e62cf26e8b78333887842cc69ac0ba7))
+
+## [3.34.1](https://github.com/witchesofthehill/manabrew/compare/v3.34.0...v3.34.1) (2026-09-02)
+
 ## [3.34.0](https://github.com/witchesofthehill/manabrew/compare/v3.33.5...v3.34.0) (2026-09-02)
 
 ### Features

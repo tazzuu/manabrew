@@ -104,7 +104,7 @@ public class DeterministicController extends PlayerController implements Harness
         this.deep = deep;
         this.verboseTurns = verboseTurns;
         this.currentTurn = 0;
-        this.costPlumbing = new HarnessCostPlumbing(this, this, this.player);
+        this.costPlumbing = new HarnessCostPlumbing(this, this, this.player, false);
         this.autoPay = new AutoPay(this.player, this.costPlumbing);
         this.playPlumbing = new HarnessPlayPlumbing(this, this.player, this.costPlumbing, false);
     }
@@ -1089,7 +1089,8 @@ public class DeterministicController extends PlayerController implements Harness
                     if (cp == null) {
                         return false;
                     }
-                    final Card instanceForPlayer = Card.fromPaperCard(cp, player);
+                    final Card instanceForPlayer =
+                            CardFactory.getCard(cp, player, -1, player.getGame());
                     final Player sourceController = source == null ? player : source.getController();
                     return instanceForPlayer.isValid(valid, sourceController, source, sa);
                 })

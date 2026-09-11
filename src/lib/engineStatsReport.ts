@@ -53,17 +53,46 @@ export function forgeHostLabel(onThisMachine: boolean): string {
 }
 
 /**
- * The engine behind a relay room. The "forge" runtime kind is never selectable
- * — a hosted room is driven through the Manabrew runtime like any other — so
- * the room's own engine is the only thing that says Forge ran.
+ * The engine behind a relay room, named from this seat's vantage point.
+ *
+ * A local host names the engine exactly. Every other seat is measuring a wire
+ * as well as an engine, and the two remote cases are not the same machine or
+ * the same cost: a node runs on the fleet, a peer runs in another player's
+ * browser or desktop app. The room says which — `RoomInfo.hosted` is true only
+ * for a node-hosted room — so the label says which too, or the fleet's timings
+ * and a peer's are pooled into one number that describes neither.
  */
 export function roomEngineLabel(
   engine: EngineKind | null | undefined,
   hostedHere: boolean,
+  platform: "tauri" | "web",
+  roomIsNodeHosted: boolean,
 ): string {
-  if (engine === "Forge") return forgeHostLabel(hostedHere);
+  if (engine === "Forge") {
+    if (hostedHere) return platform === "tauri" ? "forge-desktop" : "forge-wasm";
+    return roomIsNodeHosted ? "forge-hosted" : "forge-remote";
+  }
   if (engine === "Ironsmith") return "ironsmith";
   return localEngineLabel();
+}
+
+/**
+ * Which game a report belongs to, from the two ids a client may hold.
+ *
+ * The relay's id lives in the server store, which keeps `""` rather than null
+ * between rooms, and stays set after a relay game ends. Read with `??` that
+ * empty string won, every solo report went out with `gameId: ""`, the hub's
+ * uuid filter threw it away, and a stale relay id could even land on an
+ * offline game. So the room decides: a relay game is filed under the relay's
+ * id, anything else under the offline record's, and never one for the other.
+ */
+export function engineReportGameId(
+  multiplayer: boolean,
+  relayGameId: string | null | undefined,
+  offlineGameId: string | null,
+): string | null {
+  if (multiplayer) return relayGameId || null;
+  return offlineGameId;
 }
 
 function loadPending(): PendingReport[] {

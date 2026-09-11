@@ -9,6 +9,12 @@ import { EngineMark } from "@/components/lobby/EngineMark";
 import { OpenTableSeats } from "@/components/lobby/OpenTableSeats";
 import { TableSetupGameCard } from "@/components/lobby/TableSetupGameCard";
 import { TableSetupHostingCard } from "@/components/lobby/TableSetupHostingCard";
+import { TableSetupTableCard } from "@/components/lobby/TableSetupTableCard";
+import {
+  DEFAULT_BOARD_BACKGROUND_ID,
+  boardBackgroundUrl,
+  type BoardBackgroundId,
+} from "@/pixi/board/boardBackgrounds";
 import { TableCreatingSplash } from "@/components/lobby/TableCreatingSplash";
 import {
   CREATE_SPLASH_MIN_MS,
@@ -26,6 +32,7 @@ import { useForgeRoomAvailabilityStore } from "@/stores/useForgeRoomAvailability
 import { getPlatformType } from "@/platform";
 import { claimHostedTable } from "@/game/hostedAiPlay";
 import { isFeatureEnabled } from "@/featureFlags";
+import { isForgeWasmHostingEnabled } from "@/lib/forgeWasm";
 import { cn } from "@/lib/utils";
 import { IRONSMITH_WASM_AVAILABLE } from "@/game/ironsmithWasmAvailable";
 import { DEFAULT_RECONNECT_TIMEOUT_S } from "@/types/server";
@@ -51,7 +58,7 @@ export function TableSetup({ username, onClose, onCreatingChange }: TableSetupPr
   const ironsmithOptedIn = usePreferencesStore((s) => s.ironsmithRuntimeEnabled);
   const ironsmithEnabled =
     isFeatureEnabled("ironsmithRuntime") && IRONSMITH_WASM_AVAILABLE && ironsmithOptedIn;
-  const forgeWasm = isFeatureEnabled("forgeWasm");
+  const forgeWasm = isForgeWasmHostingEnabled();
   const hostedNode = !isTauri && !forgeWasm;
   const canHostForge = (isTauri && forgeRoomAvailable) || forgeWasm || hostedNode;
 
@@ -90,6 +97,7 @@ export function TableSetup({ username, onClose, onCreatingChange }: TableSetupPr
 
   const [importedCube, setImportedCube] = useState<CubeImportResult | null>(null);
   const [creating, setCreating] = useState(false);
+  const [background, setBackground] = useState<BoardBackgroundId>(DEFAULT_BOARD_BACKGROUND_ID);
 
   const draftPool = useSetPoolStatus(draftSet);
   const sealedPool = useSetPoolStatus(sealedSet);
@@ -218,6 +226,7 @@ export function TableSetup({ username, onClose, onCreatingChange }: TableSetupPr
           sealedConfig,
           reconnectTimeoutS,
           password,
+          background,
         );
       }
       usePreferencesStore.getState().setLastRoomSetup({
@@ -242,7 +251,7 @@ export function TableSetup({ username, onClose, onCreatingChange }: TableSetupPr
     <div className="h-full overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       <div className="flex min-h-full flex-col gap-5">
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-          <section className="flex min-h-[30rem] flex-col overflow-hidden rounded-2xl border border-primary/30 bg-card/85 shadow-xl backdrop-blur-md">
+          <section className="flex flex-col overflow-hidden rounded-2xl border border-primary/30 bg-card/85 shadow-xl backdrop-blur-md">
             <div className={cn("border-b border-border/60 px-5 py-4", onNode && "hidden")}>
               <input
                 id="table-name"
@@ -274,14 +283,16 @@ export function TableSetup({ username, onClose, onCreatingChange }: TableSetupPr
                 />
               </div>
             </div>
-            <div className="flex flex-1 items-center justify-center p-4 sm:p-8">
+            <TableSetupTableCard background={background} onBackgroundChange={setBackground} />
+            <div className="flex flex-1 items-center justify-center p-3 sm:p-4">
               <OpenTableSeats
                 players={[hostPlayer]}
                 maxPlayers={maxPlayers}
                 showSeatLabels
                 youUsername={hostUsername}
                 size="room"
-                className="max-w-3xl"
+                className="h-[min(30rem,42vh)] w-auto max-w-full"
+                backgroundUrl={boardBackgroundUrl(background)}
                 centerContent={
                   <span className="flex flex-col items-center gap-1 px-2 text-center">
                     <span className="font-serif text-lg font-light text-foreground/90 sm:text-2xl">

@@ -8,10 +8,14 @@ import type { KnownRelay } from "@/config/knownRelays";
 import type { PlaymatSettings } from "@/protocol/game";
 import type { GameFormat } from "@/types/server";
 import type { HandOrderMode } from "@/lib/handOrder";
+import { DEFAULT_BOARD_BACKGROUND_ID, type BoardBackgroundId } from "@/pixi/board/boardBackgrounds";
 
 export type ZonePanelItem = "library" | "graveyard" | "exile";
-export type CardPreviewMode = "hover" | "shift" | "alt" | "ctrl";
+export type CardPreviewMode = "hover" | "right-click";
 export type BattlefieldCardStyle = "realistic" | "art" | "frame";
+export type InGameCardPreviewStyle = "printed" | "rules";
+export type InlineCardStyle = "printed" | "rules";
+export type RulesPreviewSectionId = "actions" | "rules" | "progression" | "details" | "flavor";
 
 export interface LastRoomSetup {
   kind: "match" | "limited";
@@ -79,6 +83,9 @@ interface PreferencesState {
   battlefieldCardStyle: BattlefieldCardStyle;
   setBattlefieldCardStyle: (style: BattlefieldCardStyle) => void;
 
+  boardBackgroundId: BoardBackgroundId;
+  setBoardBackgroundId: (id: BoardBackgroundId) => void;
+
   // Perf escape hatch for weaker hardware; the board still functions when off
   // (cards move, state indicators stay).
   inGameAnimations: boolean;
@@ -94,6 +101,10 @@ interface PreferencesState {
   ironsmithRuntimeEnabled: boolean;
   setIronsmithRuntimeEnabled: (value: boolean) => void;
 
+  // P2P game traffic. Every player must opt in or the room stays on the relay.
+  directTransport: boolean;
+  setDirectTransport: (value: boolean) => void;
+
   hideAccountSaveNudge: boolean;
   setHideAccountSaveNudge: (value: boolean) => void;
 
@@ -102,6 +113,14 @@ interface PreferencesState {
 
   cardHoverDelayMs: number;
   setCardHoverDelayMs: (ms: number) => void;
+  inGameCardPreviewStyle: InGameCardPreviewStyle;
+  setInGameCardPreviewStyle: (style: InGameCardPreviewStyle) => void;
+  handCardStyle: InlineCardStyle;
+  setHandCardStyle: (style: InlineCardStyle) => void;
+  stackCardStyle: InlineCardStyle;
+  setStackCardStyle: (style: InlineCardStyle) => void;
+  collapsedRulesPreviewSections: RulesPreviewSectionId[];
+  setRulesPreviewSectionCollapsed: (section: RulesPreviewSectionId, collapsed: boolean) => void;
 
   appThemeColorOverrides: Record<string, string>;
   setAppThemeColorOverride: (key: string, hsl: string) => void;
@@ -141,12 +160,18 @@ const PERSISTED_PREFERENCE_KEYS = [
   "cardSizeMultiplier",
   "lockZoneTiles",
   "battlefieldCardStyle",
+  "boardBackgroundId",
   "inGameAnimations",
   "chooseOrderOnMultipleTriggers",
   "ironsmithRuntimeEnabled",
+  "directTransport",
   "hideAccountSaveNudge",
   "cardPreviewMode",
   "cardHoverDelayMs",
+  "inGameCardPreviewStyle",
+  "handCardStyle",
+  "stackCardStyle",
+  "collapsedRulesPreviewSections",
   "appThemeColorOverrides",
   "gameThemeColorOverrides",
   "lastPlayedDeckId",
@@ -173,6 +198,9 @@ function pickPersistedPreferences(persistedState: unknown): Partial<PreferencesS
       CARD_SIZE_MULTIPLIER_MIN,
       Math.min(CARD_SIZE_MULTIPLIER_MAX, next.cardSizeMultiplier),
     );
+  }
+  if (next.cardPreviewMode !== "hover" && next.cardPreviewMode !== "right-click") {
+    next.cardPreviewMode = "hover";
   }
   return next as Partial<PreferencesState>;
 }
@@ -244,6 +272,9 @@ export const usePreferencesStore = create<PreferencesState>()(
           battlefieldCardStyle: "realistic",
           setBattlefieldCardStyle: (battlefieldCardStyle) => set({ battlefieldCardStyle }),
 
+          boardBackgroundId: DEFAULT_BOARD_BACKGROUND_ID,
+          setBoardBackgroundId: (boardBackgroundId) => set({ boardBackgroundId }),
+
           inGameAnimations: true,
           setInGameAnimations: (inGameAnimations) => set({ inGameAnimations }),
 
@@ -254,6 +285,9 @@ export const usePreferencesStore = create<PreferencesState>()(
           ironsmithRuntimeEnabled: false,
           setIronsmithRuntimeEnabled: (ironsmithRuntimeEnabled) => set({ ironsmithRuntimeEnabled }),
 
+          directTransport: false,
+          setDirectTransport: (directTransport) => set({ directTransport }),
+
           hideAccountSaveNudge: false,
           setHideAccountSaveNudge: (hideAccountSaveNudge) => set({ hideAccountSaveNudge }),
 
@@ -262,6 +296,21 @@ export const usePreferencesStore = create<PreferencesState>()(
 
           cardHoverDelayMs: 350,
           setCardHoverDelayMs: (ms) => set({ cardHoverDelayMs: ms }),
+          inGameCardPreviewStyle: "printed",
+          setInGameCardPreviewStyle: (inGameCardPreviewStyle) => set({ inGameCardPreviewStyle }),
+          handCardStyle: "printed",
+          setHandCardStyle: (handCardStyle) => set({ handCardStyle }),
+          stackCardStyle: "printed",
+          setStackCardStyle: (stackCardStyle) => set({ stackCardStyle }),
+          collapsedRulesPreviewSections: [],
+          setRulesPreviewSectionCollapsed: (section, collapsed) =>
+            set((state) => ({
+              collapsedRulesPreviewSections: collapsed
+                ? state.collapsedRulesPreviewSections.includes(section)
+                  ? state.collapsedRulesPreviewSections
+                  : [...state.collapsedRulesPreviewSections, section]
+                : state.collapsedRulesPreviewSections.filter((id) => id !== section),
+            })),
 
           appThemeColorOverrides: {},
           setAppThemeColorOverride: (key, hsl) =>

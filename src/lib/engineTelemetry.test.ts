@@ -8,6 +8,7 @@ import {
   noteAnswerSent,
   noteEngineThinkTime,
   notePromptArrived,
+  noteReplyFrameArrived,
   summarise,
   summariseGame,
 } from "@/lib/engineTelemetry";
@@ -63,6 +64,41 @@ describe("engine telemetry", () => {
     expect(stats?.gameId).toBe("66666666-7777-8888-9999-aaaaaaaaaaaa");
   });
 
+  it("cuts the turnaround at the first reply frame, and only the first", () => {
+    const now = vi.spyOn(performance, "now");
+    beginGame("forge-hosted");
+    // A frame before any answer is not a reply to anything.
+    noteReplyFrameArrived(5);
+    for (let i = 0; i < 6; i += 1) {
+      now.mockReturnValue(1000 * i);
+      noteAnswerSent();
+      // The state frame lands, then a broadcast frame, then the prompt frame.
+      // Everything up to the first is outside this machine; everything after
+      // it, including the later frames, is this machine catching up.
+      noteReplyFrameArrived(1000 * i + 300);
+      noteReplyFrameArrived(1000 * i + 900);
+      now.mockReturnValue(1000 * i + 550);
+      notePromptArrived("chooseAction");
+    }
+    const stats = summariseGame(meta);
+    now.mockRestore();
+    expect(stats?.turnaround).toMatchObject({ n: 6, p50: 550, max: 550 });
+    expect(stats?.replyWait).toMatchObject({ n: 6, p50: 300, max: 300 });
+    expect(stats?.clientWork).toMatchObject({ n: 6, p50: 250, max: 250 });
+  });
+
+  it("reports no split for an engine that stamps no frames", () => {
+    beginGame("manabrew");
+    for (let i = 0; i < 6; i += 1) {
+      noteAnswerSent();
+      notePromptArrived("chooseAction");
+    }
+    const stats = summariseGame(meta);
+    expect(stats?.turnaround.n).toBe(6);
+    expect(stats?.replyWait).toBeNull();
+    expect(stats?.clientWork).toBeNull();
+  });
+
   it("reports nothing for a game that barely started", () => {
     beginGame("manabrew");
     noteAnswerSent();
@@ -77,13 +113,13 @@ describe("engine label", () => {
       await import("@/lib/engineStatsReport");
     // The registry defaults to the Rust engine in a fresh module graph.
     expect(localEngineLabel()).toBe("manabrew");
-    // A hosted room is driven through that same runtime, so only the room's
-    // engine says Forge ran — this is the case that was filed as "manabrew"
-    // for every hosted game in production.
-    expect(roomEngineLabel("Forge", false)).toBe("forge-hosted");
-    expect(roomEngineLabel("Forge", true)).toBe("forge-desktop");
-    expect(roomEngineLabel("Ironsmith", false)).toBe("ironsmith");
-    expect(roomEngineLabel("Manabrew", false)).toBe("manabrew");
+    expect(roomEngineLabel("Forge", false, "web", false)).toBe("forge-remote");
+    expect(roomEngineLabel("Forge", false, "web", true)).toBe("forge-hosted");
+    expect(roomEngineLabel("Forge", false, "tauri", true)).toBe("forge-hosted");
+    expect(roomEngineLabel("Forge", true, "web", false)).toBe("forge-wasm");
+    expect(roomEngineLabel("Forge", true, "tauri", false)).toBe("forge-desktop");
+    expect(roomEngineLabel("Ironsmith", false, "web", false)).toBe("ironsmith");
+    expect(roomEngineLabel("Manabrew", false, "web", false)).toBe("manabrew");
     expect(forgeHostLabel(false)).toBe("forge-hosted");
   });
 });

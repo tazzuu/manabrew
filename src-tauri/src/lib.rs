@@ -4,11 +4,14 @@ mod asset_server;
 mod card_db;
 mod commands;
 mod forge_room;
+mod image_cache;
+mod lan_discovery;
 mod limited_bootstrap;
 mod limited_commands;
 mod limited_dto;
 mod limited_manager;
 mod local_relay;
+mod logging;
 
 use limited_manager::LimitedManager;
 use tauri::Manager;
@@ -40,6 +43,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .setup(|app| {
+            logging::init(app.handle());
             if let Ok(resource_dir) = app.path().resource_dir() {
                 for (key, subdir) in RESOURCE_ENV_MAP {
                     let path = resource_dir.join(subdir);
@@ -54,6 +58,9 @@ pub fn run() {
                     }
                 }
             }
+
+            // Before the asset server, which serves `/scryfall-img/` out of it.
+            image_cache::init(app.handle());
 
             let url = asset_server::main_window_url(app.handle());
             let builder = tauri::WebviewWindowBuilder::new(app, "main", url);
@@ -79,9 +86,20 @@ pub fn run() {
             forge_room::forge_room_running,
             forge_room::start_forge_host,
             forge_room::stop_forge_host,
+            forge_room::forge_host_serving,
+            forge_room::forge_host_signal,
+            forge_room::forge_host_seat_envelope,
             local_relay::start_local_relay,
             local_relay::local_relay_running,
             local_relay::stop_local_relay,
+            lan_discovery::discover_lan_rooms,
+            asset_server::card_art_route_available,
+            image_cache::preseed_card_art,
+            image_cache::download_all_card_art,
+            image_cache::cancel_card_art_download,
+            image_cache::card_art_cache_stats,
+            image_cache::clear_card_art_cache,
+            image_cache::forget_downloaded_card_art,
             limited_commands::limited_start_sealed,
             limited_commands::limited_get_sealed_pool,
             limited_commands::limited_get_edition_info,

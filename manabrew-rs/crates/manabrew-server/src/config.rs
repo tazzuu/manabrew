@@ -1,5 +1,43 @@
 const DEFAULT_CAPTURE_MAX_GB: u64 = 20;
+/// Fixed rather than ephemeral: a client that learns it from config rather
+/// than from mDNS needs it to survive a restart.
+const DEFAULT_ART_PORT: u16 = 9528;
+
 const BYTES_PER_GB: u64 = 1024 * 1024 * 1024;
+
+pub use crate::protocol::IceServer as TransportIceServer;
+
+/// Reads `MANABREW_ICE_SERVERS`: a url list, or a JSON array of `RTCIceServer`.
+pub fn parse_ice_servers(raw: &str) -> Vec<TransportIceServer> {
+    let raw = raw.trim();
+    if raw.is_empty() {
+        return Vec::new();
+    }
+    if raw.starts_with('[') {
+        return match serde_json::from_str::<Vec<TransportIceServer>>(raw) {
+            Ok(servers) => servers.into_iter().filter(|s| !s.urls.is_empty()).collect(),
+            Err(error) => {
+                tracing::error!(%error, "MANABREW_ICE_SERVERS is not valid JSON; ignoring it");
+                Vec::new()
+            }
+        };
+    }
+    let urls: Vec<String> = raw
+        .split([',', ' ', '\t', '\n'])
+        .map(str::trim)
+        .filter(|url| !url.is_empty())
+        .map(str::to_string)
+        .collect();
+    if urls.is_empty() {
+        Vec::new()
+    } else {
+        vec![TransportIceServer {
+            urls,
+            username: None,
+            credential: None,
+        }]
+    }
+}
 
 pub struct ServerConfig {
     pub host: String,
@@ -12,9 +50,28 @@ pub struct ServerConfig {
     pub capture_dir: Option<String>,
     pub capture_max_gb: u64,
     pub deck_hub_enabled: bool,
-    pub hub_deck_plays_url: Option<String>,
-    pub hub_deck_plays_token: Option<String>,
+    /// The hub takes the analytics feed and, with `DECK_HUB`, deck-play
+    /// evidence. Env names keep the older `DECK_PLAYS` spelling.
+    pub hub_url: Option<String>,
+    pub hub_token: Option<String>,
     pub hub_jwks_url: Option<String>,
+    /// Opt-in. Off, the relay never sends a roster.
+    pub direct_transport: bool,
+    /// ICE servers handed to the browser plane. See [`parse_ice_servers`].
+    pub ice_servers: Vec<TransportIceServer>,
+    /// Where this relay keeps card art. Set it and the relay serves
+    /// `/scryfall-img/` for everyone on the network, which is the point of
+    /// running one: nobody else has to hold 8GB of images.
+    pub art_dir: Option<String>,
+    pub art_port: u16,
+    /// An absolute url, for a deployment behind a proxy where the port this
+    /// binds is not the one a client reaches. On a LAN nobody sets this: the
+    /// mDNS record already carries the port and the client already knows the
+    /// host it connected to.
+    pub art_base_url: Option<String>,
+    /// Answer mDNS, so four desktops on a network find this box without anyone
+    /// typing its address.
+    pub lan_advertise: bool,
 }
 
 impl ServerConfig {
@@ -53,19 +110,78 @@ impl ServerConfig {
                     "1" | "true" | "yes" | "on"
                 )
             }),
-            hub_deck_plays_url: std::env::var("MANABREW_HUB_DECK_PLAYS_URL")
+            hub_url: std::env::var("MANABREW_HUB_DECK_PLAYS_URL")
                 .ok()
                 .filter(|url| !url.is_empty()),
-            hub_deck_plays_token: std::env::var("MANABREW_HUB_DECK_PLAYS_TOKEN")
+            hub_token: std::env::var("MANABREW_HUB_DECK_PLAYS_TOKEN")
                 .ok()
                 .filter(|token| !token.is_empty()),
             hub_jwks_url: std::env::var("MANABREW_HUB_JWKS_URL")
                 .ok()
                 .filter(|url| !url.is_empty()),
+            direct_transport: std::env::var("MANABREW_DIRECT_TRANSPORT")
+                .is_ok_and(|v| v == "1" || v.eq_ignore_ascii_case("true")),
+            ice_servers: std::env::var("MANABREW_ICE_SERVERS")
+                .ok()
+                .map(|raw| parse_ice_servers(&raw))
+                .unwrap_or_default(),
+            art_dir: std::env::var("MANABREW_ART_DIR")
+                .ok()
+                .filter(|dir| !dir.is_empty()),
+            art_port: std::env::var("MANABREW_ART_PORT")
+                .ok()
+                .and_then(|port| port.parse().ok())
+                .unwrap_or(DEFAULT_ART_PORT),
+            art_base_url: std::env::var("MANABREW_ART_BASE_URL")
+                .ok()
+                .filter(|url| !url.is_empty()),
+            lan_advertise: std::env::var("MANABREW_LAN_ADVERTISE")
+                .map(|value| {
+                    matches!(
+                        value.to_ascii_lowercase().as_str(),
+                        "1" | "true" | "yes" | "on"
+                    )
+                })
+                .unwrap_or(false),
         }
     }
 
     pub fn capture_max_bytes(&self) -> u64 {
         self.capture_max_gb.saturating_mul(BYTES_PER_GB)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_plain_url_list_becomes_one_server() {
+        let parsed = parse_ice_servers("stun:a.example.org:19302, stun:b.example.org");
+        assert_eq!(parsed.len(), 1);
+        assert_eq!(
+            parsed[0].urls,
+            vec!["stun:a.example.org:19302", "stun:b.example.org"]
+        );
+        assert!(parsed[0].username.is_none());
+    }
+
+    #[test]
+    fn json_carries_turn_credentials() {
+        let parsed = parse_ice_servers(
+            r#"[{"urls":["turn:t.example.org"],"username":"u","credential":"p"}]"#,
+        );
+        assert_eq!(parsed.len(), 1);
+        assert_eq!(parsed[0].username.as_deref(), Some("u"));
+        assert_eq!(parsed[0].credential.as_deref(), Some("p"));
+    }
+
+    #[test]
+    fn anything_unparseable_yields_no_servers_rather_than_a_panic() {
+        assert!(parse_ice_servers("").is_empty());
+        assert!(parse_ice_servers("   ").is_empty());
+        assert!(parse_ice_servers("[not json").is_empty());
+        assert!(parse_ice_servers(r#"[{"username":"u"}]"#).is_empty());
+        assert!(parse_ice_servers(r#"[{"urls":[]}]"#).is_empty());
     }
 }
