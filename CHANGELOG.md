@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.42.1](https://github.com/witchesofthehill/manabrew/compare/v3.42.0...v3.42.1) (2026-09-11)
+
+### Fixes
+
+* **play:** hold the back button during a live game ([#900](https://github.com/witchesofthehill/manabrew/issues/900)) ([feeb1cf](https://github.com/witchesofthehill/manabrew/commit/feeb1cfad985a5c2d32c90a30baa940abdf45bd3))
+
 ## [3.42.0](https://github.com/witchesofthehill/manabrew/compare/v3.41.1...v3.42.0) (2026-09-11)
 
 ### Features
