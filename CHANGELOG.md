@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.42.2](https://github.com/witchesofthehill/manabrew/compare/v3.42.1...v3.42.2) (2026-09-12)
+
+### Fixes
+
+* initialise complete archive for forge-wasm ([#910](https://github.com/witchesofthehill/manabrew/issues/910)) ([69511cb](https://github.com/witchesofthehill/manabrew/commit/69511cba2e84a5dddd65c3debdc01135ab223a20))
+
 ## [3.42.1](https://github.com/witchesofthehill/manabrew/compare/v3.42.0...v3.42.1) (2026-09-11)
 
 ### Fixes
